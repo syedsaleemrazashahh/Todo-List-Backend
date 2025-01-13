@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
+import "./database.js";
 
+const Todos = [];
 const app = express();
 const port = process.env.PORT || 3000;
-
-const todos = [];
 
 app.use(express.json()); // ye body ko JSON mein convert karta hai
 app.use(cors({ origin: ["http://localhost:5173"] }));
@@ -17,17 +17,14 @@ app.get("/api/v1/todos", (request, response) => {
 });
 
 // naya todo banane ki api hai
-app.post("/api/v1/todo", (request, response) => {
-  if (!request.body.todo) {
-    return response.status(400).send({ message: "todo content required" });
-  }
-
+app.post("/api/v1/todo", async (request, response) => {
   const object = {
     todoContent: request.body.todo,
-    id: String(new Date().getTime()),
+    ip: request.ip,
   };
 
-  todos.push(object);
+  const res = await Todo.create(object);
+  console.log("res,", res);
 
   response.send({ message: "add ho raha hai", data: object });
 });
@@ -39,7 +36,7 @@ app.patch("/api/v1/todo/:id", (request, response) => {
   let isFound = false;
   for (let i = 0; i < todos.length; i++) {
     if (todos[i].id === id) {
-      // idher product mil chuka hy (ab us product ko edit karna hy)
+      // idher product mil gaya hai  (ab us ko edit karna hy)
 
       todos[i].todoContent = request.body.todoContent;
       isFound = true;
