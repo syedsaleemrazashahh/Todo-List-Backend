@@ -1,5 +1,5 @@
 import axios from "axios";
-import e from "cors";
+import cors from "cors";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -104,13 +104,13 @@ export default function App() {
         <ul className="mt-6 space-y-4">
           {todos?.map((todo, index) => (
             <li
-              key={todo.id}
+              key={todo._id}
               className="flex justify-between items-center p-4 bg-gray-50 rounded-md shadow-sm hover:bg-gray-100 transition-all duration-200"
             >
               {!todo.isEditing ? (
                 <span className="text-gray-700">{todo.todoContent}</span>
               ) : (
-                <form onSubmit={(e) => editTodo(e, todo.id)}>
+                <form onSubmit={(e) => editTodo(e, todo._id)}>
                   <input
                     type="text"
                     defaultValue={todo.todoContent}
@@ -156,7 +156,7 @@ export default function App() {
 
                 {!todo.isEditing ? (
                   <button
-                    onClick={() => deleteTodo(todo.id)}
+                    onClick={() => deleteTodo(todo._id)}
                     className="text-red-600 hover:text-red-700 focus:outline-none"
                   >
                     Delete

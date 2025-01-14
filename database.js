@@ -1,13 +1,10 @@
 import mongoose from "mongoose";
 
-const mongodbUri =
-  "mongodb+srv://saleemraza-admin:EKSP3vBBrbeBc4u2@cluster0.ycnxp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const mongodbUri = process.env.MONGO_URI;
 
 const connectDB = async () => {
   try {
-    const connectionInstance = await mongoose.connect(mongodbUri, {
-      dbName: "my-todo-db",
-    });
+    const connectionInstance = await mongoose.connect(mongodbUri);
 
     console.log(`\n🌿 MongoDB connected ! 🍃\n`);
 
@@ -34,7 +31,7 @@ try {
 
   // Uncomment the following lines when the server code is added
   // app.listen(PORT, () =>
-  //   console.log(`⚙️  Server running at port ==>> ${PORT}`),
+  //   console.log(⚙️  Server running at port ==>> ${PORT}),
   // );
   // app.on("error", (err) => console.log("🚀 ~ main file:", err));
 } catch (err) {

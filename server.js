@@ -1,8 +1,9 @@
 import express from "express";
 import cors from "cors";
+import "dotenv/config";
 import "./database.js";
+import { Todo } from "./models/index.js";
 
-const Todos = [];
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -10,81 +11,72 @@ app.use(express.json()); // ye body ko JSON mein convert karta hai
 app.use(cors({ origin: ["http://localhost:5173"] }));
 
 // Get all todos
-app.get("/api/v1/todos", (request, response) => {
-  const message = !todos.length ? "todos empty" : "ye lo sab todos";
+app.get("/api/v1/todos", async (request, response) => {
+  try {
+    const todos = await Todo.find(
+      {},
 
-  response.send({ data: todos, message: message });
+      { ip: 0, __v: 0, updatedAt: 0 } // projection (0 wale front per nhi aaye)
+
+      // { todoContent: 1 } sirf todoContent show hoga frontend per aur kuxh show nhi hoga
+
+      // { todoContent: 1, _id: 0 } // advance saruf id ma different keys use ho sagti hy like 0 and 1
+    );
+    const message = !todos.length ? "todos empty" : "ye lo sab todos";
+
+    response.send({ data: todos, message: message });
+  } catch (err) {
+    response.send(500).send("Internal Server Error");
+  }
 });
 
 // naya todo banane ki api hai
 app.post("/api/v1/todo", async (request, response) => {
-  const object = {
-    todoContent: request.body.todo,
-    ip: request.ip,
-  };
+  try {
+    const object = {
+      todoContent: request.body.todo,
+      ip: request.ip,
+    };
 
-  const res = await Todo.create(object);
-  console.log("res,", res);
+    const result = await Todo.create(object);
 
-  response.send({ message: "add ho raha hai", data: object });
+    response.send({ message: "add ho raha hai", data: result });
+  } catch (err) {
+    response.send(500).send("Error aa gaya hai");
+  }
 });
 
 // todo ko edit karne ki api hai
-app.patch("/api/v1/todo/:id", (request, response) => {
+app.patch("/api/v1/todo/:id", async (request, response) => {
   const id = request.params.id;
 
-  let isFound = false;
-  for (let i = 0; i < todos.length; i++) {
-    if (todos[i].id === id) {
-      // idher product mil gaya hai  (ab us ko edit karna hy)
+  const result = await Todo.findByIdAndUpdate(id, {
+    todoContent: request.body.todoContent,
+  });
+  console.log("result=>", result);
 
-      todos[i].todoContent = request.body.todoContent;
-      isFound = true;
-      break;
-    }
-  }
-  if (isFound) {
+  if (result) {
     response.status(201).send({
-      data: {
-        todoContent: request.body.todoContent,
-        id: id,
-      },
-      message: "todo updated ho gaya hai!",
+      data: result,
+      message: "todo update ho gaya hai!",
     });
   } else {
-    response.status(200).send({
-      data: null,
-      message: "todo not found",
-    });
+    response.status(200).send({ data: null, message: "todo not found" });
   }
 });
 
 // todo ko delete karne ki api hai
-app.delete("/api/v1/todo/:id", (request, response) => {
+app.delete("/api/v1/todo/:id", async (request, response) => {
   const id = request.params.id;
 
-  let isFound = false;
-  for (let i = 0; i < todos.length; i++) {
-    if (todos[i].id === id) {
-      // idher product mil chuka hy (ab us product ko deleted karna hy)
-      todos.splice(i, 1);
-      isFound = true;
-      break;
-    }
-  }
-  if (isFound) {
+  const result = await Todo.findByIdAndDelete(id);
+  if (result) {
     response.status(201).send({
-      data: {
-        todoContent: request.body.todoContent,
-        id: id,
-      },
-      message: "todo deleted ho gaya hai!",
+      // data: { todoContent: request.body.todoContent, id: id, },
+      message: "Todo deleted ho gaya hai!",
     });
   } else {
-    response.status(200).send({
-      data: null,
-      message: "todo not found",
-    });
+    response.status(200).send({ data: null, message: "todo not found" });
   }
 });
 
