@@ -6,9 +6,15 @@ import { Todo } from "./models/index.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
-
 app.use(express.json()); // ye body ko JSON mein convert karta hai
-app.use(cors({ origin: ["http://localhost:5173"] }));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      // "todo - list - backend.surge.sh"
+    ],
+  })
+);
 
 // Get all todos
 app.get("/api/v1/todos", async (request, response) => {
@@ -21,7 +27,8 @@ app.get("/api/v1/todos", async (request, response) => {
       // { todoContent: 1 } sirf todoContent show hoga frontend per aur kuxh show nhi hoga
 
       // { todoContent: 1, _id: 0 } // advance saruf id ma different keys use ho sagti hy like 0 and 1
-    );
+    ).sort({ todoContent: -1 });
+
     const message = !todos.length ? "todos empty" : "ye lo sab todos";
 
     response.send({ data: todos, message: message });
