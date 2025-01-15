@@ -1,5 +1,4 @@
 import axios from "axios";
-import cors from "cors";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -7,7 +6,7 @@ export const getUrl = () => {
   const isHosted = window.location.href.includes("https");
 
   const baseUrl = isHosted
-    ? "https://todo-list-backend-qzae.vercel.app/"
+    ? "https://todo-list-backend-qzae.vercel.app"
     : "http://localhost:3000";
   return baseUrl;
 };
@@ -17,7 +16,7 @@ export default function App() {
 
   const getTodo = async () => {
     try {
-      const res = await axios(`${getUrl}1/todos`);
+      const res = await axios(`${getUrl()}/api/v1/todos`);
       const todosFromServer = res?.data?.data;
       console.log("todosFromServer ", todosFromServer);
 
@@ -38,7 +37,7 @@ export default function App() {
 
       const todoValue = event.target.children[0].value;
 
-      await axios.post(`${getUrl}/api/v1/todo`, {
+      await axios.post(`${getUrl()}/api/v1/todo`, {
         todo: todoValue,
       });
       getTodo();
@@ -58,7 +57,7 @@ export default function App() {
 
       const todoValue = event.target.children[0].value;
 
-      await axios.patch(`${getUrl}/api/v1/todo/${todoId}`, {
+      await axios.patch(`${getUrl()}/api/v1/todo/${todoId}`, {
         todoContent: todoValue,
       });
       getTodo();
@@ -74,7 +73,7 @@ export default function App() {
     try {
       console.log("todoId ", todoId);
 
-      const res = await axios.delete(`${getUrl}/api/v1/todo/${todoId}`);
+      const res = await axios.delete(`${getUrl()}/api/v1/todo/${todoId}`);
 
       console.log("data ", res.data);
 
@@ -125,7 +124,6 @@ export default function App() {
                     defaultValue={todo.todoContent}
                     className="border border-gray-400"
                   />
-
                   <button
                     onClick={() => {
                       const newTodos = todos.map((todo, i) => {
